@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaPhoneAlt } from "react-icons/fa";
 import { toast } from "react-toastify";
+import API from "../api";
 
 const Quote = () => {
   const [formData, setFormData] = useState({
@@ -31,12 +32,26 @@ const Quote = () => {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Submitted Data:", formData);
-    // TODO: send data to backend here
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    console.log("form",formData)
+    const res = await API.post("/quote/submit", formData);
     toast.success("Quote request submitted successfully!");
-  };
+    setFormData({
+      name: "",
+      phone: "",
+      email: "",
+      interests: [],
+      message: "",
+    });
+  } catch (err) {
+    console.log(err)
+    toast.error("Failed to submit. Try again.");
+  }
+};
+
 
   return (
     <div className="max-w-5xl mx-auto p-6 sm:p-10">

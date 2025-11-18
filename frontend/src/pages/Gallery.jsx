@@ -1,16 +1,34 @@
-import { FaHome } from 'react-icons/fa';
-import { motion } from 'framer-motion';
-
-const categories = [
-  'All', 'Horse Arenas', 'Footing', 'Barn & Building Pads', 'Driveways', 'Erosion Matting',
-  'Finish Grade', 'Foundations', 'Road Base', 'Trenching', 'Earth Moving', 'Rock Crusher',
-  'Parking Lot', 'Horse Arena', 'Excavation', 'Flood Control', 'Ditch Excavation', 'Road Grading', 'Asphalt'
-];
+import React, { useEffect, useState } from "react";
+import { FaHome } from "react-icons/fa";
+import { motion } from "framer-motion";
+import API from "../api";
 
 const Gallery = () => {
+  const [categories, setCategories] = useState([]);
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchGallery = async () => {
+    try {
+      const res = await API.get("/getGallery");
+      setCategories(res.data.categories);
+      setImages(res.data.images);
+    } catch (error) {
+      console.log("Error loading gallery");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGallery();
+  }, []);
+
+  if (loading) return <p className="text-center py-10">Loading...</p>;
+
   return (
     <div className="w-full min-h-screen bg-white">
-      
+
       {/* Subnav */}
       <div className="bg-black text-white py-6 px-4 flex justify-between items-center">
         <h1 className="text-2xl sm:text-3xl font-semibold">Gallery</h1>
@@ -50,18 +68,14 @@ const Gallery = () => {
         variants={{
           hidden: {},
           visible: {
-            transition: {
-              staggerChildren: 0.05,
-            },
+            transition: { staggerChildren: 0.05 },
           },
         }}
       >
         {categories.map((cat, idx) => (
           <motion.button
             key={idx}
-            className={`px-4 py-2 border ${
-              cat === 'All' ? 'border-red-500 text-red-600' : 'border-gray-400 text-gray-700'
-            } rounded-md text-sm hover:bg-red-100 transition`}
+            className="px-4 py-2 border border-gray-400 text-gray-700 rounded-md text-sm hover:bg-red-100 transition"
             whileHover={{ scale: 1.05 }}
             variants={{
               hidden: { opacity: 0, y: 10 },
@@ -72,6 +86,19 @@ const Gallery = () => {
           </motion.button>
         ))}
       </motion.div>
+
+      {/* Gallery Images */}
+      <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-4 pb-10">
+        {images.map((img, idx) => (
+          <motion.img
+            key={idx}
+            src={img.url}
+            alt="Gallery"
+            className="w-full h-64 object-cover rounded-lg shadow-md"
+            whileHover={{ scale: 1.03 }}
+          />
+        ))}
+      </div>
     </div>
   );
 };
